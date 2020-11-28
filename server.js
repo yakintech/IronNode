@@ -39,7 +39,7 @@ var tokenmiddleware = function (req, res, next) {
 
     console.log(req);
 
-    if (req.originalUrl == "/token") {
+    if (req.originalUrl == "/token" || req.originalUrl == "/") {
         next();
     }
     else {
