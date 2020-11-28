@@ -2,10 +2,39 @@ const express = require('express');
 const { mongo, model } = require('mongoose');
 const { Webuser } = require('./Data/mongomodel');
 const app = express();
-const models =  require('./Data/mongomodel');
+const models = require('./Data/mongomodel');
+const jwt = require('jsonwebtoken');
+
+const jwtkey = "ironmaiden";
+const jwtExpirySeconds = 300;
 
 app.use(express.urlencoded())
 app.use(express.json())
+
+
+var tokenmiddleware = function (req, res, next) {
+
+
+    if (req.originalUrl == "/token") {
+        next();
+    }
+    else {
+        let token = req.query.token;
+
+        try {
+            let decoded = jwt.verify(token, jwtkey);
+            next();
+        }
+        catch (err) {
+            res.status(401).json({ "msg": "Yetkisiz erişim. /token adresinden token alınız" });
+        }
+    }
+
+};
+
+
+app.use(tokenmiddleware);
+
 
 
 app.use(function (req, res, next) {
@@ -27,39 +56,80 @@ app.use(function (req, res, next) {
     next();
 });
 
-app.get('/',(req,res)=>{
+app.get('/', (req, res) => {
     res.send('OK!');
 });
 
-//tüm webuserları getiren API 
-app.get('/api/webuser',(req,res)=>{
-    
-    models.Webuser.find({isdeleted:false},(err,doc)=>{
-        //eğer bir hata yoksa dökümanı kullanıcıya gönderiyorum
-        if(!err){
-            res.json(doc);
+
+app.post("/token", (req, res) => {
+
+    let email = req.body.email;
+    let pwd = req.body.password;
+
+    models.Adminuser.find({ email: email, password: pwd }, (err, doc) => {
+
+        if (doc.length != 0) {
+            //token üretilip geri gönderilecek
+
+            const token = jwt.sign({ email }, jwtkey, {
+                algorithm: 'HS256',
+                expiresIn: jwtExpirySeconds
+            })
+            res.json({ 'token': token });
+
+
         }
-        //Hata varsa hatayı kullanıcıya gönderiyorum ( ÖNERİLMEZ! )
-        else{
-            res.json(err);
+        else {
+            res.send("Email veya kullanıcı adı yanlış");
         }
+
     })
+
+
+})
+
+//tüm webuserları getiren API 
+app.get('/api/webuser', (req, res) => {
+
+    let token = req.query.token;
+
+    try {
+
+        let decoded = jwt.verify(token, jwtkey);
+
+        models.Webuser.find({ isdeleted: false }, (err, doc) => {
+            //eğer bir hata yoksa dökümanı kullanıcıya gönderiyorum
+            if (!err) {
+                res.json(doc);
+            }
+            //Hata varsa hatayı kullanıcıya gönderiyorum ( ÖNERİLMEZ! )
+            else {
+                res.json(err);
+            }
+        })
+
+    }
+    catch (err) {
+
+        res.status(401).json({ "msg": "Yetkisiz erişim. /token adresinden token alınız" });
+
+    }
 
 })
 
 
 //Dışarıdan gelen id ye göre webuser ı silen api ucu
-app.post('/api/webuser/delete',(req,res)=>{
+app.post('/api/webuser/delete', (req, res) => {
 
     let id = req.body.id;
 
-    let webuser = Webuser.findById(id,(err,doc)=>{
-        if(!err){
+    let webuser = Webuser.findById(id, (err, doc) => {
+        if (!err) {
             doc.isdeleted = true;
             doc.save();
-            res.json({"msg":"Deleted!"});
+            res.json({ "msg": "Deleted!" });
         }
-        else{
+        else {
             res.json(err);
         }
     })
@@ -68,38 +138,38 @@ app.post('/api/webuser/delete',(req,res)=>{
 
 
 //Dışarıdan gelen webuser objesine db ye kaydeder
-app.post('/api/webuser/add',(req,res)=>{
+app.post('/api/webuser/add', (req, res) => {
 
     let addresses = []
 
     addresses.push(req.body.address1);
     addresses.push(req.body.address2);
-    
+
 
     let w = new models.Webuser({
-        email:req.body.email,
+        email: req.body.email,
         phone: req.body.phone,
         address: addresses
     });
 
-    w.save((err,doc)=>{
-        if(!err){
-            res.json({"msg":"Added!"});
+    w.save((err, doc) => {
+        if (!err) {
+            res.json({ "msg": "Added!" });
         }
-        else{
+        else {
             res.json(err);
         }
     })
 })
 
 //tüm iletişim mesajlarını getiren API
-app.get('/api/contact',(req,res)=>{
+app.get('/api/contact', (req, res) => {
 
-    models.Contact.find({},(err,doc)=>{
-        if(!err){
+    models.Contact.find({}, (err, doc) => {
+        if (!err) {
             res.json(doc);
         }
-        else{
+        else {
             //Burada err loglanmak için bir yere gönderilir ( winston )
             res.status(500).send("Sistemde hata meydana geldi");
         }

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-mongoose.connect(`mongodb+srv://batman:vE9Lu4pTCEdXPX5s@cluster0.pnk3m.gcp.mongodb.net/irondb
-`, {useNewUrlParser: true});
+mongoose.connect('mongodb+srv://user_cagatay:ai2GFv4N8Hwfq5sO@cluster0.ol2mp.mongodb.net/ironecommerce?authSource=admin&replicaSet=atlas-75f4ea-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true', { useNewUrlParser: true })
+
 
 
 const { Schema } = mongoose;
@@ -20,17 +20,34 @@ const contactSchema = new Schema({
     email:String,
     content:String,
     adddate: {type:Date,default:Date.now}
+});
+
+
+const adminSchema = new Schema({
+    email:String,
+    password:String
 })
 
 const Webuser = mongoose.model('Webuser', webuserSchema);
 const Contact = mongoose.model('Contact', contactSchema);
+const Adminuser = mongoose.model('Adminuser',adminSchema);
 
 
 module.exports = {
     Webuser,
-    Contact
+    Contact,
+    Adminuser
 }
 
+
+// var w = new Adminuser({
+//     email:'cagatay.yildiz@bilgeadam.com',
+//     password:'123'
+// })
+
+// w.save((err,doc)=>{
+//     console.log(err)
+// });
 //Bu kod satırı ile manuel bir data insert ettim. Bu sayede schema db üzerinde oluşmuş oldu
 //  var w = new Webuser({
 //      email:"mert.alptekin@bilgeadam.com",
