@@ -62,7 +62,7 @@ app.use(tokenmiddleware);
 
 
 app.get('/', (req, res) => {
-    res.send('OK!');
+    res.send('Hello Digital!');
 });
 
 
