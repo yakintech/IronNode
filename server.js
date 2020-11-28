@@ -9,11 +9,35 @@ const jwtkey = "ironmaiden";
 const jwtExpirySeconds = 300;
 
 app.use(express.urlencoded())
-app.use(express.json())
+app.use(express.json());
+
+
+
+app.use(function (req, res, next) {
+
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
+    // Pass to next layer of middleware
+    next();
+});
+
+
 
 
 var tokenmiddleware = function (req, res, next) {
 
+    console.log(req);
 
     if (req.originalUrl == "/token") {
         next();
@@ -36,25 +60,6 @@ var tokenmiddleware = function (req, res, next) {
 app.use(tokenmiddleware);
 
 
-
-app.use(function (req, res, next) {
-
-    // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', '*');
-
-    // Request methods you wish to allow
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
-    // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
-    res.setHeader('Access-Control-Allow-Credentials', true);
-
-    // Pass to next layer of middleware
-    next();
-});
 
 app.get('/', (req, res) => {
     res.send('OK!');
@@ -80,7 +85,7 @@ app.post("/token", (req, res) => {
 
         }
         else {
-            res.send("Email veya kullanıcı adı yanlış");
+            res.json({"msg":"Email veya kullanıcı adı yanlış"});
         }
 
     })
