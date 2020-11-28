@@ -1,17 +1,25 @@
 {
-  "name": "Iron ECommerce",
+  "name": "API",
   "version": "1.0.0",
-  "description": "Iron ECommerce Application",
-  "main": "index.js",
+  "description": "Yüklenen Paketler\r - Nodemon ( Global )\r - Express\r - BodyParser\r - Mongoose ( nodejs üzerinden mongodb ye bağlanıyor ve oradaki data işlemlerini gerçekleştiriyor.)\r - Moment\r - PM2\r - Lodash\r - Chalk\r - Winston",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yakintech/IronNode.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yakintech/IronNode/issues"
+  },
+  "homepage": "https://github.com/yakintech/IronNode#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.10.15"
+    "mongoose": "^5.10.17"
   }
 }
