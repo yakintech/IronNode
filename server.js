@@ -44,8 +44,7 @@ app.use(function (req, res, next) {
 var tokenmiddleware = function (req, res, next) {
 
 
-
-    if (req.originalUrl == "/token" || req.originalUrl == "/images/productimages/:url") {
+    if (req.originalUrl == "/token" || req.originalUrl.includes("/images/productimages/")) {
         next();
     }
     else {
@@ -63,6 +62,11 @@ var tokenmiddleware = function (req, res, next) {
 };
 
 app.use(tokenmiddleware);
+
+
+app.get("/images/productimages/:imgpath", (req, res) => {
+    res.sendFile(__dirname + "/images/productimages/" + req.params.imgpath);
+})
 
 app.get('/', (req, res) => {
     res.send('Hello Digital!');
@@ -208,7 +212,7 @@ app.post('/api/products/add', (req, res) => {
         var base64Data = req.body.files[i].thumbUrl.replace(/^data:image\/png;base64,/, "");
 
         let imagename = uuidv4() + ".png";
-        require("fs").writeFile(__dirname + "/images/productimages/" +imagename, base64Data, 'base64', function (err) {
+        require("fs").writeFile(__dirname + "/images/productimages/" + imagename, base64Data, 'base64', function (err) {
         });
 
         filepaths.push(imagename);
@@ -221,8 +225,8 @@ app.post('/api/products/add', (req, res) => {
         name: req.body.data.name,
         description: req.body.data.description,
         categories: req.body.data.categories,
-        price: req.body.price,
-        code: req.body.code,
+        price: req.body.data.price,
+        code: req.body.data.code,
         images: filepaths
     });
 
@@ -233,14 +237,14 @@ app.post('/api/products/add', (req, res) => {
     res.json({ "msg": "Success!" });
 })
 
-app.get("/api/products",(req,res)=>{
+app.get("/api/products", (req, res) => {
 
-    models.Product.find({},(err,doc)=>{
-        
-        if(!err){
+    models.Product.find({ isdeleted: false }, (err, doc) => {
+
+        if (!err) {
             res.json(doc);
         }
-        else{
+        else {
             res.json(err);
         }
 
@@ -248,6 +252,22 @@ app.get("/api/products",(req,res)=>{
 
 })
 
+app.post("/api/products/delete", (req, res) => {
+
+    let id = req.body.id;
+
+    models.Product.findById(id, async (err, doc) => {
+        if (!err) {
+            doc.isdeleted = true;
+            await doc.save();
+            res.json({ "msg": "Success!" });
+        }
+        else {
+            res.json(err);
+        }
+    })
+
+})
 
 
 const port = 3001;
