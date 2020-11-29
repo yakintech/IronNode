@@ -4,12 +4,18 @@ const { Webuser } = require('./Data/mongomodel');
 const app = express();
 const models = require('./Data/mongomodel');
 const jwt = require('jsonwebtoken');
+const { v4: uuidv4 } = require('uuid');
+
+
+var bodyParser = require('body-parser');
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 
 const jwtkey = "ironmaiden";
 const jwtExpirySeconds = 300;
 
-app.use(express.urlencoded())
-app.use(express.json());
+// app.use(express.urlencoded())
+// app.use(express.json());
 
 
 
@@ -37,9 +43,9 @@ app.use(function (req, res, next) {
 
 var tokenmiddleware = function (req, res, next) {
 
-    console.log(req);
 
-    if (req.originalUrl == "/token" || req.originalUrl == "/") {
+
+    if (req.originalUrl == "/token" || req.originalUrl == "/images/productimages/:url") {
         next();
     }
     else {
@@ -56,10 +62,7 @@ var tokenmiddleware = function (req, res, next) {
 
 };
 
-
 app.use(tokenmiddleware);
-
-
 
 app.get('/', (req, res) => {
     res.send('Hello Digital!');
@@ -85,7 +88,7 @@ app.post("/token", (req, res) => {
 
         }
         else {
-            res.json({"msg":"Email veya kullanıcı adı yanlış"});
+            res.json({ "msg": "Email veya kullanıcı adı yanlış" });
         }
 
     })
@@ -182,6 +185,68 @@ app.get('/api/contact', (req, res) => {
 
 })
 
+app.get('/api/categories', (req, res) => {
+
+    models.Category.find({}, (err, doc) => {
+        if (!err) {
+            res.json(doc);
+        }
+        else {
+            res.json(err);
+        }
+    })
+
+})
+
+
+app.post('/api/products/add', (req, res) => {
+
+
+    let filepaths = [];
+    for (let i = 0; i < req.body.files.length; i++) {
+
+        var base64Data = req.body.files[i].thumbUrl.replace(/^data:image\/png;base64,/, "");
+
+        let imagename = uuidv4() + ".png";
+        require("fs").writeFile(__dirname + "/images/productimages/" +imagename, base64Data, 'base64', function (err) {
+        });
+
+        filepaths.push(imagename);
+    }
+
+
+
+
+    var product = models.Product({
+        name: req.body.data.name,
+        description: req.body.data.description,
+        categories: req.body.data.categories,
+        price: req.body.price,
+        code: req.body.code,
+        images: filepaths
+    });
+
+    product.save();
+
+
+
+    res.json({ "msg": "Success!" });
+})
+
+app.get("/api/products",(req,res)=>{
+
+    models.Product.find({},(err,doc)=>{
+        
+        if(!err){
+            res.json(doc);
+        }
+        else{
+            res.json(err);
+        }
+
+    })
+
+})
 
 
 

@@ -6,38 +6,63 @@ mongoose.connect('mongodb+srv://user_cagatay:ai2GFv4N8Hwfq5sO@cluster0.ol2mp.mon
 const { Schema } = mongoose;
 
 const webuserSchema = new Schema({
-    email:String,
-    phone:String,
-    address:[],
+    email: String,
+    phone: String,
+    address: [],
     //add date kolonu data eklendiği an default olarak mevcut tarihi db ye basar
-    adddate: {type:Date,default:Date.now},
+    adddate: { type: Date, default: Date.now },
     //isdeleted kolonu data eklendiği an default olarak false değerini db ye basar. 
-    isdeleted:{type:Boolean,default:false}
+    isdeleted: { type: Boolean, default: false }
 });
 
 const contactSchema = new Schema({
-    title:String,
-    email:String,
-    content:String,
-    adddate: {type:Date,default:Date.now}
+    title: String,
+    email: String,
+    content: String,
+    adddate: { type: Date, default: Date.now }
 });
 
 
 const adminSchema = new Schema({
-    email:String,
-    password:String
+    email: String,
+    password: String
+});
+
+const productSchema = new Schema({
+    name: String,
+    description: String,
+    images: [],
+    price: Number,
+    categories: [],
+    code: String,
+    //add date kolonu data eklendiği an default olarak mevcut tarihi db ye basar
+    adddate: { type: Date, default: Date.now },
+    //isdeleted kolonu data eklendiği an default olarak false değerini db ye basar. 
+    isdeleted: { type: Boolean, default: false }
+});
+
+const categorySchema = new Schema({
+    name: String,
+    adddate: { type: Date, default: Date.now },
+    isdeleted: { type: Boolean, default: false }
 })
 
 const Webuser = mongoose.model('Webuser', webuserSchema);
 const Contact = mongoose.model('Contact', contactSchema);
-const Adminuser = mongoose.model('Adminuser',adminSchema);
+const Adminuser = mongoose.model('Adminuser', adminSchema);
+const Product = mongoose.model('Product', productSchema);
+const Category = mongoose.model('Category',categorySchema);
 
 
 module.exports = {
     Webuser,
     Contact,
-    Adminuser
+    Adminuser,
+    Product,
+    Category
 }
+
+
 
 
 // var w = new Adminuser({
