@@ -12,7 +12,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true, parameterLimit: 50000 }));
 
 const jwtkey = "ironmaiden";
-const jwtExpirySeconds = 300;
+const jwtExpirySeconds = 100000;
 
 // app.use(express.urlencoded())
 // app.use(express.json());
@@ -166,7 +166,7 @@ app.post('/api/webuser/add', (req, res) => {
 
     w.save((err, doc) => {
         if (!err) {
-            res.json({ "msg": "Added!" });
+            res.json(doc);
         }
         else {
             res.json(err);
@@ -191,7 +191,7 @@ app.get('/api/contact', (req, res) => {
 
 app.get('/api/categories', (req, res) => {
 
-    models.Category.find({}, (err, doc) => {
+    models.Category.find({isdeleted:false}, (err, doc) => {
         if (!err) {
             res.json(doc);
         }
@@ -200,6 +200,23 @@ app.get('/api/categories', (req, res) => {
         }
     })
 
+})
+
+app.post('/api/categories/add',(req,res)=>{
+
+    let category = new models.Category({
+        name:req.body.name
+    });
+
+    category.save((err,doc)=>{
+        if(!err){
+            console.log(doc);
+            res.json(doc);
+        }
+        else{
+            res.json(err);
+        }
+    })
 })
 
 
