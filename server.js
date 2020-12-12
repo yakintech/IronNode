@@ -92,7 +92,7 @@ app.post("/token", (req, res) => {
 
         }
         else {
-            res.json({ "msg": "Email veya kullanıcı adı yanlış" });
+            res.status(401).json({ "msg": "Email veya kullanıcı adı yanlış" });
         }
 
     })
@@ -191,7 +191,7 @@ app.get('/api/contact', (req, res) => {
 
 app.get('/api/categories', (req, res) => {
 
-    models.Category.find({isdeleted:false}, (err, doc) => {
+    models.Category.find({ isdeleted: false }, (err, doc) => {
         if (!err) {
             res.json(doc);
         }
@@ -202,18 +202,17 @@ app.get('/api/categories', (req, res) => {
 
 })
 
-app.post('/api/categories/add',(req,res)=>{
+app.post('/api/categories/add', (req, res) => {
 
     let category = new models.Category({
-        name:req.body.name
+        name: req.body.name
     });
 
-    category.save((err,doc)=>{
-        if(!err){
-            console.log(doc);
+    category.save((err, doc) => {
+        if (!err) {
             res.json(doc);
         }
-        else{
+        else {
             res.json(err);
         }
     })
@@ -285,6 +284,27 @@ app.post("/api/products/delete", (req, res) => {
     })
 
 })
+
+
+app.post('/api/adminuser/add', (req, res) => {
+    let email = req.body.email;
+    let password = req.body.password;
+
+    var admin = models.Adminuser({
+        email: email,
+        password: password
+    });
+
+    admin.save((err, doc) => {
+        if (!err) {
+            res.json(doc);
+        }
+        else {
+            res.json(err);
+        }
+    })
+})
+
 
 
 const port = 3001;
