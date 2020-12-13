@@ -189,6 +189,25 @@ app.get('/api/contact', (req, res) => {
 
 })
 
+app.post('/api/contact/add', (req, res) => {
+
+    var contact = new models.Contact({
+        title: req.body.title,
+        email: req.body.email,
+        content: req.body.content
+    });
+
+    contact.save((err, doc) => {
+        if (!err) {
+            res.json({ "msg": "Success!" });
+        }
+        else {
+            res.json(err);
+        }
+    })
+
+})
+
 app.get('/api/categories', (req, res) => {
 
     models.Category.find({ isdeleted: false }, (err, doc) => {
