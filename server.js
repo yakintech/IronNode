@@ -238,6 +238,26 @@ app.post('/api/categories/add', (req, res) => {
 })
 
 
+app.get('/api/products/getproductsbycategoryid/:categoryid',(req,res)=>{
+
+    let categoryid = req.params.categoryid;
+
+    console.log(categoryid);
+    models.Product.find({ isdeleted: false, categories:categoryid }, (err, doc) => {
+
+        if (!err) {
+            console.log(doc);
+            res.json(doc);
+        }
+        else {
+            res.json(err);
+        }
+
+    })
+})
+
+
+
 app.post('/api/products/add', (req, res) => {
 
 
