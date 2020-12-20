@@ -47,11 +47,25 @@ const categorySchema = new Schema({
     isdeleted: { type: Boolean, default: false }
 })
 
+const orderSchema = new Schema({
+    name:String,
+    surname:String,
+    email:String,
+    phone:String,
+    address:String,
+    postalcode:String,
+    orderdetail:Object,
+    adddate: { type: Date, default: Date.now },
+    isdeleted: { type: Boolean, default: false }
+})
+
 const Webuser = mongoose.model('Webuser', webuserSchema);
 const Contact = mongoose.model('Contact', contactSchema);
 const Adminuser = mongoose.model('Adminuser', adminSchema);
 const Product = mongoose.model('Product', productSchema);
 const Category = mongoose.model('Category',categorySchema);
+const Order = mongoose.model('Order',orderSchema);
+
 
 
 module.exports = {
@@ -59,7 +73,8 @@ module.exports = {
     Contact,
     Adminuser,
     Product,
-    Category
+    Category,
+    Order
 }
 
 

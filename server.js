@@ -5,6 +5,7 @@ const app = express();
 const models = require('./Data/mongomodel');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+var nodemailer = require('nodemailer');
 
 
 var bodyParser = require('body-parser');
@@ -238,12 +239,12 @@ app.post('/api/categories/add', (req, res) => {
 })
 
 
-app.get('/api/products/getproductsbycategoryid/:categoryid',(req,res)=>{
+app.get('/api/products/getproductsbycategoryid/:categoryid', (req, res) => {
 
     let categoryid = req.params.categoryid;
 
     console.log(categoryid);
-    models.Product.find({ isdeleted: false, categories:categoryid }, (err, doc) => {
+    models.Product.find({ isdeleted: false, categories: categoryid }, (err, doc) => {
 
         if (!err) {
             console.log(doc);
@@ -343,6 +344,76 @@ app.post('/api/adminuser/add', (req, res) => {
         }
     })
 })
+
+
+
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'bilgebatman19@gmail.com',
+        pass: 'Superman!35'
+    }
+});
+
+
+function SendEMail(mailOptions) {
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
+}
+
+
+app.post('/api/order/add', (req, res) => {
+
+    console.log(req.body);
+
+    var order = new models.Order({
+        name: req.body.name,
+        surname: req.body.surname,
+        email: req.body.email,
+        phone: req.body.phone,
+        address: req.body.address,
+        postalcode: req.body.postalcode,
+        orderdetail: req.body.orderdetail,
+    });
+
+    order.save((err, doc) => {
+        if (!err) {
+            //sipariş sonrası yetkiliye email düşüyor...
+
+
+            let ordermailtext = '<h1>Sitenizden sipariş var!! </h1><h3>' + req.body.name + " " + req.body.surname + " isimli kişinin " + req.body.orderdetail.pcount + " adet siparişi var! </h3> <br>";
+
+            let siparisurun = '';
+            req.body.orderdetail.products.forEach(element => {
+                siparisurun = siparisurun +  'Ürün adı: ' + element.name + ' Fiyat: ' + element.price + 'Adet: ' + element.count + " <br> ";
+            });
+
+            var mailOptions = {
+                from: 'bilgebatman19@gmail.com',
+                to: 'cagatayyildiz87@gmail.com',
+                subject: 'Sipariş',
+                text: ordermailtext + siparisurun,
+                html:ordermailtext + siparisurun
+            };
+
+            SendEMail(mailOptions);
+
+
+            res.json(doc);
+        }
+        else {
+            res.json(err);
+        }
+    })
+})
+
+
+
 
 
 
